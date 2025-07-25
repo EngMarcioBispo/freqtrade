@@ -1,93 +1,153 @@
 {
-  // Adiciona autocomplete e validação no seu editor de código (como VSCode)
-  "$schema": "https://schema.freqtrade.io/schema.json",
-
-  // --- Configurações Principais de Trade ---
-  // Número máximo de trades abertos simultaneamente.
-  // -1 significa ilimitado (limitado pela sua whitelist de pares).
-  "max_open_trades": 5,
-
-  // Moeda base para todas as operações. O bot usará USDT para comprar outras moedas.
-  "stake_currency": "USDT",
-
-  // Valor em stake_currency para cada trade.
-  // "unlimited" usa uma porção do seu saldo total (definido por tradable_balance_ratio).
-  "stake_amount": "unlimited",
-  
-  // Porcentagem do saldo total que o bot pode usar. 0.99 = 99%.
-  // Deixar 1% livre ajuda a cobrir taxas.
-  "tradable_balance_ratio": 0.99,
-
-  // --- Configurações da Exchange ---
-  "exchange": {
-    "name": "binance",
-    "key": "", // Substitua por sua API Key da Binance
-    "secret": "", // Substitua por seu API Secret da Binance
-    
-    // Lista de pares que o bot irá monitorar para negociar.
-    "pair_whitelist": [
-      "BTC/USDT",
-      "ETH/USDT",
-      "BNB/USDT",
-      "XRP/USDT",
-      "ADA/USDT",
-      "SOL/USDT",
-      "DOGE/USDT"
+    "$schema": "https://schema.freqtrade.io/schema.json",
+    "max_open_trades": 5,
+    "stake_currency": "USDT",
+    "stake_amount": 20,
+    "tradable_balance_ratio": 0.99,
+    "fiat_display_currency": "USD",
+    "timeframe": "5m",
+    "trading_mode": "spot",
+    "margin_mode": "",
+    "dry_run": true,
+    "dry_run_wallet": 1000,
+    "strategy_path": "user_data/strategies/",
+    "strategy": "SampleStrategy",
+    "stoploss": -0.10,
+    "minimal_roi": {
+        "60": 0.01,
+        "30": 0.02,
+        "0": 0.04
+    },
+    "trailing_stop": true,
+    "trailing_stop_positive": 0.02,
+    "trailing_stop_positive_offset": 0.03,
+    "trailing_only_offset_is_reached": true,
+    "use_exit_signal": true,
+    "exit_profit_only": false,
+    "ignore_roi_if_entry_signal": false,
+    "order_types": {
+        "entry": "limit",
+        "exit": "limit",
+        "stoploss": "market",
+        "stoploss_on_exchange": false,
+        "force_exit": "market",
+        "emergency_exit": "market"
+    },
+    "order_time_in_force": {
+        "entry": "GTC",
+        "exit": "GTC"
+    },
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
+    "unfilledtimeout": {
+        "entry": 10,
+        "exit": 10,
+        "unit": "minutes"
+    },
+    "cancel_open_orders_on_exit": true,
+    "exchange": {
+        "name": "binance",
+        "key": "your_api_key_here",
+        "secret": "your_api_secret_here",
+        "ccxt_config": {},
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "BTC/USDT",
+            "ETH/USDT",
+            "XRP/USDT",
+            "LTC/USDT",
+            "LINK/USDT",
+            "ADA/USDT",
+            "SOL/USDT",
+            "AVAX/USDT"
+        ],
+        "pair_blacklist": [
+            "BNB/.*",
+            ".*UP/USDT",
+            ".*DOWN/USDT"
+        ]
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        },
+        {
+            "method": "VolumePairList",
+            "number_assets": 20,
+            "sort_key": "quoteVolume",
+            "refresh_period": 1800
+        },
+        {
+            "method": "SpreadFilter",
+            "max_spread_ratio": 0.005
+        },
+        {
+            "method": "PriceFilter",
+            "min_price": 0.00001
+        },
+        {
+            "method": "AgeFilter",
+            "min_days_listed": 10
+        },
+        {
+            "method": "FullTradesFilter"
+        },
+        {
+            "method": "PrecisionFilter"
+        }
     ],
-    // Pares para ignorar, mesmo que a estratégia dê sinal.
-    "pair_blacklist": [
-      "AUD/USDT" // Exemplo de par a ser ignorado
-    ]
-  },
-
-  // --- Configurações de Saída e Risco (ROI e Stoploss) ---
-  // ROI (Return On Investment) Mínimo.
-  // O bot venderá se o lucro atingir o valor definido após um certo tempo.
-  "minimal_roi": {
-    "0": 0.15,      // Vende imediatamente se o lucro for de 15%
-    "30": 0.10,     // Vende após 30 min se o lucro for de 10%
-    "60": 0.05,     // Vende após 60 min se o lucro for de 5%
-    "120": 0       // Sai no zero a zero após 2 horas para não ficar preso no trade
-  },
-
-  // Stoploss: Vende o ativo se o preço cair X%. 0.10 = 10% de perda máxima.
-  "stoploss": -0.10,
-
-  // Ativa o Trailing Stoploss. O stoploss "sobe" junto com o preço.
-  "trailing_stop": true,
-  // Começa a travar o lucro quando o preço sobe X%. 0.02 = 2%.
-  "trailing_stop_positive": 0.02,
-  // Distância que o stoploss ficará do preço máximo. 0.03 = 3%.
-  // Ex: se o lucro chegar a 10%, o stoploss se ajustará para 7% (10% - 3%).
-  "trailing_stop_positive_offset": 0.03,
-  // Só ativa o trailing stoploss depois que o offset é alcançado
-  "trailing_only_offset_is_reached": true,
-
-
-  // --- Configurações Gerais do Bot ---
-  // true = Modo de simulação (não usa dinheiro real).
-  // false = Modo de produção (usa dinheiro real). COMECE COM TRUE!
-  "dry_run": true,
-  // Saldo inicial da carteira para o modo dry_run.
-  "dry_run_wallet": 1000,
-  
-  // Nome do arquivo do banco de dados para salvar os trades.
-  // É crucial usar arquivos diferentes para dry_run e produção.
-  "db_url": "sqlite:///tradesv3.dryrun.sqlite",
-
-  // --- Configurações da Interface Web (API / FreqUI) ---
-  "api_server": {
-    "enabled": true,
-    "listen_ip_address": "0.0.0.0", // Aceita conexões de qualquer IP (necessário para Docker)
-    "listen_port": 8080,
-    "username": "freqtrader",
-    "password": "TroqueEstaSenhaSegura" // Use uma senha forte
-  },
-
-  // --- Configurações do Telegram (Opcional) ---
-  "telegram": {
-    "enabled": false,
-    "token": "",        // Token do seu bot do Telegram
-    "chat_id": ""     // ID do seu chat do Telegram
-  }
+    "freqai": {
+        "enabled": false,
+        "purge_old_models": 2,
+        "train_period_days": 15,
+        "identifier": "unique-id-for-this-model",
+        "feature_parameters": {
+            "include_timeframes": [
+                "5m",
+                "15m",
+                "1h"
+            ],
+            "include_corr_pairlist": [
+                "BTC/USDT",
+                "ETH/USDT"
+            ],
+            "label_period_candles": 24,
+            "DI_threshold": 0.9,
+            "weight_factor": 0.9
+        },
+        "data_split_parameters": {
+            "test_size": 0.33
+        },
+        "model_training_parameters": {}
+    },
+    "telegram": {
+        "enabled": false,
+        "token": "your_telegram_token",
+        "chat_id": "your_telegram_chat_id"
+    },
+    "api_server": {
+        "enabled": true,
+        "listen_ip_address": "0.0.0.0",
+        "listen_port": 8080,
+        "username": "freqtrader",
+        "password": "change_this_password"
+    },
+    "db_url": "sqlite:///tradesv3.sqlite",
+    "initial_state": "running",
+    "force_entry_enable": false,
+    "internals": {
+        "process_throttle_secs": 5
+    }
 }
