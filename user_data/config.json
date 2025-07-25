@@ -1,0 +1,93 @@
+{
+  // Adiciona autocomplete e validação no seu editor de código (como VSCode)
+  "$schema": "https://schema.freqtrade.io/schema.json",
+
+  // --- Configurações Principais de Trade ---
+  // Número máximo de trades abertos simultaneamente.
+  // -1 significa ilimitado (limitado pela sua whitelist de pares).
+  "max_open_trades": 5,
+
+  // Moeda base para todas as operações. O bot usará USDT para comprar outras moedas.
+  "stake_currency": "USDT",
+
+  // Valor em stake_currency para cada trade.
+  // "unlimited" usa uma porção do seu saldo total (definido por tradable_balance_ratio).
+  "stake_amount": "unlimited",
+  
+  // Porcentagem do saldo total que o bot pode usar. 0.99 = 99%.
+  // Deixar 1% livre ajuda a cobrir taxas.
+  "tradable_balance_ratio": 0.99,
+
+  // --- Configurações da Exchange ---
+  "exchange": {
+    "name": "binance",
+    "key": "", // Substitua por sua API Key da Binance
+    "secret": "", // Substitua por seu API Secret da Binance
+    
+    // Lista de pares que o bot irá monitorar para negociar.
+    "pair_whitelist": [
+      "BTC/USDT",
+      "ETH/USDT",
+      "BNB/USDT",
+      "XRP/USDT",
+      "ADA/USDT",
+      "SOL/USDT",
+      "DOGE/USDT"
+    ],
+    // Pares para ignorar, mesmo que a estratégia dê sinal.
+    "pair_blacklist": [
+      "AUD/USDT" // Exemplo de par a ser ignorado
+    ]
+  },
+
+  // --- Configurações de Saída e Risco (ROI e Stoploss) ---
+  // ROI (Return On Investment) Mínimo.
+  // O bot venderá se o lucro atingir o valor definido após um certo tempo.
+  "minimal_roi": {
+    "0": 0.15,      // Vende imediatamente se o lucro for de 15%
+    "30": 0.10,     // Vende após 30 min se o lucro for de 10%
+    "60": 0.05,     // Vende após 60 min se o lucro for de 5%
+    "120": 0       // Sai no zero a zero após 2 horas para não ficar preso no trade
+  },
+
+  // Stoploss: Vende o ativo se o preço cair X%. 0.10 = 10% de perda máxima.
+  "stoploss": -0.10,
+
+  // Ativa o Trailing Stoploss. O stoploss "sobe" junto com o preço.
+  "trailing_stop": true,
+  // Começa a travar o lucro quando o preço sobe X%. 0.02 = 2%.
+  "trailing_stop_positive": 0.02,
+  // Distância que o stoploss ficará do preço máximo. 0.03 = 3%.
+  // Ex: se o lucro chegar a 10%, o stoploss se ajustará para 7% (10% - 3%).
+  "trailing_stop_positive_offset": 0.03,
+  // Só ativa o trailing stoploss depois que o offset é alcançado
+  "trailing_only_offset_is_reached": true,
+
+
+  // --- Configurações Gerais do Bot ---
+  // true = Modo de simulação (não usa dinheiro real).
+  // false = Modo de produção (usa dinheiro real). COMECE COM TRUE!
+  "dry_run": true,
+  // Saldo inicial da carteira para o modo dry_run.
+  "dry_run_wallet": 1000,
+  
+  // Nome do arquivo do banco de dados para salvar os trades.
+  // É crucial usar arquivos diferentes para dry_run e produção.
+  "db_url": "sqlite:///tradesv3.dryrun.sqlite",
+
+  // --- Configurações da Interface Web (API / FreqUI) ---
+  "api_server": {
+    "enabled": true,
+    "listen_ip_address": "0.0.0.0", // Aceita conexões de qualquer IP (necessário para Docker)
+    "listen_port": 8080,
+    "username": "freqtrader",
+    "password": "TroqueEstaSenhaSegura" // Use uma senha forte
+  },
+
+  // --- Configurações do Telegram (Opcional) ---
+  "telegram": {
+    "enabled": false,
+    "token": "",        // Token do seu bot do Telegram
+    "chat_id": ""     // ID do seu chat do Telegram
+  }
+}
